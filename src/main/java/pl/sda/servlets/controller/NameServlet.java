@@ -16,6 +16,10 @@ public class NameServlet extends HttpServlet {
 
     public static final String NAME_REGEX = "[A-Z][a-z]+";
     public static final String PARAMETER_NAME = "name";
+    public static final String FEMALE_NAME_REGEX = ".+a";
+    public static final String FEMALE_PATH = "/female";
+    public static final String MALE_PATH = "/male";
+    public static final String MAIN_SITE_PATH = "/index.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -32,39 +36,25 @@ public class NameServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
 
         Optional<String> giveName = Optional.ofNullable(req.getParameter(PARAMETER_NAME));
-        Runnable handleMissingName = () -> writer.println("<h4>Nie podałeś imienia</h4>");
-        giveName.ifPresentOrElse(name -> processNameParameter(name, writer), handleMissingName);
-
-        //wyswietl imie uzytkownika
-        // prześlij go na strone główną
-        req.getRequestDispatcher("/index.jsp").include(req, resp);
+        String path = giveName
+                .map(name -> convertNameToProperPath(name, writer))
+                .orElseGet(() -> getPathWhenMissingName(writer));
+        req.getRequestDispatcher(path).include(req, resp);
     }
 
-//    private Runnable handleMissingName(HttpServletResponse resp) {
-//
-//        return () -> {
-//            try{
-//                resp.getWriter().println("<h4>Nie podałeś imienia</h4>");
-//            } catch (IOException e){
-//                e.printStackTrace();
-//            }
-//        };
-//    }
+    private String convertNameToProperPath(String name, PrintWriter writer){
 
-
-    private void processNameParameter(String name, PrintWriter writer){
-
-        //czy imie jest puste
-        //czy imie zawiera tylko litery
-        //wyswietlic informacje
-        try {
             if (name.matches(NAME_REGEX)) {
-                writer.println("<h4>Twoje imię to" + name + "</h4>");
+                writer.println("<h4>Twoje imię to " + name + "</h4>");
+                return name.matches(FEMALE_NAME_REGEX) ? FEMALE_PATH : MALE_PATH;
             } else {
                 writer.println("<h4>Imie podane w złym formacie</h4>");
+                return MAIN_SITE_PATH;
             }
-        } catch (Exception e){
-            e.printStackTrace();
+    }
+
+    private String getPathWhenMissingName(PrintWriter writer){
+        writer.println("<h4>Nie podałeś imienia</h4>");
+        return "/index.jsp";
         }
     }
-}

@@ -7,11 +7,13 @@
 <body>
 <h1 align="center">Serwis do zarządzania imionami</h1>
 //formularz do wysłania imienia
-<form action="http://localhost:8080/practise/nameServlet"
+<br>
+<form action="/practise/name"
       method="post">
     Imię:
     <input type="text" name="name"><br>
     <input type="submit" value="Wyślij">
+
 </form>
 </body>
 </html>
